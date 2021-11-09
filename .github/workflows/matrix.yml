@@ -1,0 +1,46 @@
+# A github action multi-dimentional build matrix
+
+name: Better Matrix
+
+on:
+  push:
+
+jobs:
+  wheels:
+    # Note references to within matrix.os' data structure
+    name: Build ${{ matrix.os }} ${{ matrix.py }} ${{ matrix.arch }} wheels
+    runs-on: ${{ matrix.os }}-latest
+    # Run the job only when we want the given arch on the given OS
+    if: >
+      contains(
+        fromJSON(
+          '{"ubuntu": ["x86_64", "i686", "aarch64"], "windows": ["x86", "AMD64"], "macos": ["x86_64"]}'
+        )[matrix.os], 
+      matrix.arch)
+    strategy:
+      matrix:
+        # We are limited to a matrix with 256 elements.
+        # More than that and you can fall back to generating sparse
+        # matrix elements with "include:", using cog.
+        os:
+          - ubuntu
+          - windows
+          - macos
+        py:
+          - cp36
+          - cp37
+          - cp38
+          - cp39
+          - cp310
+        arch:
+          - aarch64
+          - AMD64
+          - i686
+          - x86
+          - x86_64
+      fail-fast: false
+
+    steps:
+      - name: ok
+        run: |
+          ls -l 
